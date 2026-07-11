@@ -57,7 +57,7 @@ credential-dumping signal (Mimikatz, procdump, etc). Watch
 `GrantedAccess` values like `0x1010` or `0x1410` — these correspond to
 access rights commonly requested by dumping tools.
 
-**Sigma equivalent:** [`sigma-rules/t1003_001_lsass_memory_dump.yml`](sigma-rules/t1003_001_lsass_memory_dump.yml)
+**Sigma equivalent:** [`sigma-rules/t1003_001_lsass_memory_dump.yml`](../sigma-rules/t1003_001_lsass_memory_dump.yml)
 
 ---
 
@@ -76,7 +76,7 @@ TargetObject="*\\CurrentVersion\\Run*"
 Sysmon Event ID 13 (RegistryEvent - Value Set) catches persistence via
 Run/RunOnce keys — a common technique for surviving reboots.
 
-**Sigma equivalent:** [`sigma-rules/t1547_001_registry_run_key.yml`](sigma-rules/t1547_001_registry_run_key.yml)
+**Sigma equivalent:** [`sigma-rules/t1547_001_registry_run_key.yml`](../sigma-rules/t1547_001_registry_run_key.yml)
 
 ---
 
@@ -107,9 +107,9 @@ cross-platform timeline, tagged by OS.
 once, which native Sigma rules (v1 schema) don't support directly. It's
 split into two Sigma rules, one per platform, tied together with a Sigma
 *correlation rule* (v2) — see
-[`sigma-rules/t1110_001_brute_force_windows.yml`](sigma-rules/t1110_001_brute_force_windows.yml)
+[`sigma-rules/t1110_001_brute_force_windows.yml`](../sigma-rules/t1110_001_brute_force_windows.yml)
 and
-[`sigma-rules/t1110_001_brute_force_linux.yml`](sigma-rules/t1110_001_brute_force_linux.yml)
+[`sigma-rules/t1110_001_brute_force_linux.yml`](../sigma-rules/t1110_001_brute_force_linux.yml)
 (the correlation rule itself is documented as a comment in the Windows file).
 
 **Top targeted / attacking usernames:**
