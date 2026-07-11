@@ -36,7 +36,7 @@ the full command line + parent process, so you can spot suspicious
 encoded commands or an unexpected parent (e.g. `winword.exe` spawning
 `powershell.exe`).
 
-**Sigma equivalent:** [`sigma-rules/t1059_001_powershell_execution.yml`] sigma-rules/t1059_001_powershell_execution.yml
+**Sigma equivalent:** [`sigma-rules/t1059_001_powershell_execution.yml`](../sigma-rules/t1059_001_powershell_execution.yml)
 
 ---
 
