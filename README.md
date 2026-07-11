@@ -12,7 +12,8 @@ into Splunk and maps detections to MITRE ATT&CK — built to practice the
 full loop a SOC analyst actually works in: generate realistic attacker
 behavior, capture it in logs, write the detection, and validate it fires.
 
-![Architecture diagram](architecture-diagram.png)
+![Architecture diagram]
+<img width="3280" height="1800" alt="architecture-diagram" src="https://github.com/user-attachments/assets/669c20ab-dead-48e8-be44-3480e1feb2b9" />
 
 ---
 
@@ -30,28 +31,6 @@ behavior, capture it in logs, write the detection, and validate it fires.
   logins across both a Windows and a Linux host.
 - **Documentation discipline** — every step reproducible from the notes
   in this repo, including the mistakes I hit along the way.
-
----
-
-## Repo structure
-
-```
-.
-├── README.md                       # you are here
-├── architecture-diagram.png        # pipeline overview (above)
-├── inputs.conf                     # UF + indexer input stanzas, by host
-├── spl-queries.md                  # all detection queries, MITRE-mapped
-├── sigma-rules/                    # tool-agnostic Sigma versions of the four detections
-│   ├── t1059_001_powershell_execution.yml
-│   ├── t1003_001_lsass_memory_dump.yml
-│   ├── t1547_001_registry_run_key.yml
-│   ├── t1110_001_brute_force_windows.yml
-│   └── t1110_001_brute_force_linux.yml
-├── screenshots/                    # dashboard panel screenshots
-│   └── (add .png files here — see Screenshots section below)
-└── pfsense-suricata/
-    └── setup-notes.md              # pfSense install + Suricata + log forwarding
-```
 
 ---
 
@@ -115,18 +94,7 @@ panel).
 
 ## Screenshots
 
-<!--
-  Add dashboard screenshots to /screenshots and reference them below, e.g.:
-  ![Failed logon correlation panel](screenshots/failed-logon-correlation.png)
-  ![PowerShell execution detection panel](screenshots/powershell-detection.png)
 
-  No screenshots are checked in yet -- this section is a placeholder so the
-  panel images have a home in the repo as soon as they're captured, rather
-  than claiming finished panels that don't exist yet.
--->
-
-*(placeholder -- dashboard screenshots not yet captured; see
-`screenshots/` and the Next steps checklist below)*
 
 ---
 
@@ -141,17 +109,7 @@ panel).
   far more about how alerts actually reach a SIEM than only running a
   SIEM against endpoint logs would have.
 
-## Next steps
 
-- [ ] Wire up real Suricata EVE JSON parsing and replace the
-      placeholder severity panel
-- [x] Add Sigma-rule versions of the four ATT&CK detections — see
-      [`sigma-rules/`](sigma-rules/)
-- [ ] Add dashboard screenshots once the panels are finalized — folder
-      is scaffolded at [`screenshots/`](screenshots/), images pending
-- [ ] Layer an insider-threat / DLP correlation scenario on top
-
----
 
 *Built as a personal home lab project — not affiliated with Splunk,
 Suricata, pfSense, or MITRE.*
