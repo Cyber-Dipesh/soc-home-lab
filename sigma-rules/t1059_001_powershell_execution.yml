@@ -1,0 +1,47 @@
+title: PowerShell Process Execution
+id: 7a9e3c1a-2b4d-4e6f-9a1c-1f4d8b2e6a01
+status: experimental
+description: |
+    Detects execution of powershell.exe via process creation (Sysmon Event ID 1
+    / Windows Security Event ID 4688). Intended as a broad first-pass detection —
+    tune with ParentImage and CommandLine allowlists for your environment before
+    treating this as high-fidelity.
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+author: Home SOC Lab
+date: 2026/07/11
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\powershell.exe'
+    condition: selection
+fields:
+    - Computer
+    - User
+    - CommandLine
+    - ParentImage
+falsepositives:
+    - Legitimate administrative scripting and scheduled tasks
+    - Software deployment tools that shell out to PowerShell
+level: low
+
+# --- Notes (comments, not part of the Sigma rule schema) ---
+# Splunk equivalent (spl-queries.md, T1059.001):
+#   index=sysmon sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+#   EventCode=1 Image="*\\powershell.exe"
+#   | table _time, Computer, User, CommandLine, ParentImage
+#
+# Notes:
+# - `level: low` on purpose — plain powershell.exe execution is noisy. Pair this
+#   with a second rule (or SPL, see below) that flags suspicious ParentImage
+#   values (winword.exe, excel.exe, outlook.exe) or encoded command flags
+#   (-enc / -EncodedCommand) for a higher-confidence variant.
+# - Sysmon EventID 1 and Windows Security EventID 4688 both populate
+#   process_creation in Sigma's taxonomy; if you're forwarding 4688 instead of
+#   Sysmon, this rule applies unchanged — only the logsource `service` mapping
+#   in your Sigma backend config changes.

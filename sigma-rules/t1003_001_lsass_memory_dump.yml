@@ -1,0 +1,52 @@
+title: LSASS Memory Access via Sysmon ProcessAccess
+id: 3e8f1d2b-6c4a-4b9e-8d1a-2f6e9c4a3b02
+status: experimental
+description: |
+    Detects processes requesting memory access to lsass.exe consistent with
+    credential dumping tools (Mimikatz, procdump, comsvcs.dll MiniDump, etc.).
+    GrantedAccess values below are the classic Sysmon config defaults used to
+    flag high-risk access masks.
+references:
+    - https://attack.mitre.org/techniques/T1003/001/
+    - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_access/proc_access_win_lsass_memdmp_generic.yml
+author: Home SOC Lab
+date: 2026/07/11
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+logsource:
+    category: process_access
+    product: windows
+detection:
+    selection:
+        TargetImage|endswith: '\lsass.exe'
+    high_risk_access:
+        GrantedAccess:
+            - '0x1010'
+            - '0x1410'
+            - '0x1438'
+            - '0x143a'
+    condition: selection and high_risk_access
+fields:
+    - Computer
+    - SourceImage
+    - TargetImage
+    - GrantedAccess
+falsepositives:
+    - Endpoint protection / antivirus engines performing legitimate scans of lsass.exe
+    - Backup or crash-dump utilities with a documented business need to access lsass.exe
+level: high
+
+# --- Notes (comments, not part of the Sigma rule schema) ---
+# Splunk equivalent (spl-queries.md, T1003.001):
+#   index=sysmon sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+#   EventCode=10 TargetImage="*\lsass.exe"
+#   | table _time, Computer, SourceImage, TargetImage, GrantedAccess
+#   | sort -_time
+#
+# - Sigma's process_access category maps to Sysmon Event ID 10. If your
+#   Sysmon config filters ProcessAccess events by GrantedAccess already
+#   (recommended -- it's a very high-volume event ID otherwise), confirm the
+#   masks above are actually reaching the index before relying on this rule.
+# - level: high reflects that a genuine hit here is a strong credential-theft
+#   indicator, unlike the PowerShell rule which is intentionally broad.

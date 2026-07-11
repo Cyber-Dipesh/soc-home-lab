@@ -1,0 +1,46 @@
+title: Registry Run Key / Startup Folder Persistence
+id: 9c2a4e6f-1b8d-4a2e-9c3f-5d7a1e8b4c03
+status: experimental
+description: |
+    Detects a value being set under a Run/RunOnce registry key, a common
+    technique for surviving reboots without deploying a new binary or service.
+references:
+    - https://attack.mitre.org/techniques/T1547/001/
+author: Home SOC Lab
+date: 2026/07/11
+tags:
+    - attack.persistence
+    - attack.privilege_escalation
+    - attack.t1547.001
+logsource:
+    category: registry_set
+    product: windows
+detection:
+    selection:
+        TargetObject|contains: '\CurrentVersion\Run'
+    condition: selection
+fields:
+    - Computer
+    - User
+    - TargetObject
+    - Details
+    - Image
+falsepositives:
+    - Legitimate software installers registering startup entries
+    - IT-managed configuration/deployment tools
+level: medium
+
+# --- Notes (comments, not part of the Sigma rule schema) ---
+# Splunk equivalent (spl-queries.md, T1547.001):
+#   index=sysmon sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+#   EventCode=13 TargetObject="*\CurrentVersion\Run*"
+#   | table _time, Computer, User, TargetObject, Details, Image
+#   | sort -_time
+#
+# - Sigma's registry_set category corresponds to Sysmon Event ID 13
+#   (RegistryEvent - Value Set). Event ID 12 (Create/Delete) and 14 (Rename)
+#   are related but not covered here — add separate rules if you want
+#   key-creation/deletion coverage too.
+# - `TargetObject|contains` intentionally covers both HKLM and HKCU Run/RunOnce
+#   paths (32-bit and 64-bit registry views) without hardcoding the full hive
+#   path, matching the wildcard behavior of the original SPL query.

@@ -1,0 +1,65 @@
+title: Windows Failed Logon Flood (Brute Force / Password Guessing)
+id: 5b1e7c3a-4f2d-4b6e-8a1c-3e9d5f2a6c04
+status: experimental
+description: |
+    Detects a high rate of failed logon attempts (Event ID 4625) against a
+    single host, consistent with password-guessing or brute-force activity.
+    This is the Windows half of a cross-platform brute-force detection — see
+    t1110_001_brute_force_linux.yml for the Linux side, and the correlation
+    note at the bottom of this file for combining the two.
+references:
+    - https://attack.mitre.org/techniques/T1110/001/
+author: Home SOC Lab
+date: 2026/07/11
+tags:
+    - attack.credential_access
+    - attack.t1110.001
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4625
+    timeframe: 5m
+    condition: selection | count(TargetUserName) by Computer > 5
+fields:
+    - Computer
+    - TargetUserName
+    - IpAddress
+falsepositives:
+    - Service accounts with expired credentials retrying on a schedule
+    - Misconfigured application connection pools
+level: medium
+
+# --- Notes (comments, not part of the Sigma rule schema) ---
+# Splunk equivalent (spl-queries.md, T1110.001):
+#   index=* (host="<windows-hostname>" EventCode=4625) OR (host="<linux-hostname>" "Failed password")
+#   | rex field=_raw "Account Name:\s+(?<win_user>\S+)"
+#   | rex field=_raw "Failed password for (?<invalid_linux_user>invalid user )?(?<lin_user>\S+)"
+#   | eval OS = if(host="<windows-hostname>", "Windows", "Linux")
+#   | eval User = coalesce(win_user, lin_user)
+#   | timechart count by OS
+#
+# - Sigma's native rule schema (v1) doesn't have a first-class way to
+#   correlate two different logsources (Windows security log + Linux auth
+#   log) into one rule the way the SPL `timechart ... by OS` does. The
+#   `count() by ... > N` aggregation above only covers Windows.
+# - For true cross-platform correlation, use Sigma's newer "correlation rule"
+#   type (rule type: temporal / event_count), which references other rules by
+#   `id` and combines them with a shared group-by field and timeframe, e.g.:
+#
+#     title: Cross-Platform Brute Force Correlation
+#     status: experimental
+#     correlation:
+#         type: event_count
+#         rules:
+#             - 5b1e7c3a-4f2d-4b6e-8a1c-3e9d5f2a6c04   # this rule
+#             - 8d4f2a6c-9e1b-4d7a-b3f8-6c2a4e9d1f05    # linux rule id
+#         group-by:
+#             - TargetUserName
+#         timespan: 5m
+#         condition:
+#             gte: 5
+#
+#   Not all Sigma backends/pySigma pipelines support the correlation rule
+#   type yet — check your conversion tooling before relying on it.
