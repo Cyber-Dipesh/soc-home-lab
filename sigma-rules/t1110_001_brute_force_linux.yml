@@ -1,0 +1,49 @@
+title: Linux SSH Failed Password Flood (Brute Force / Password Guessing)
+id: 8d4f2a6c-9e1b-4d7a-b3f8-6c2a4e9d1f05
+status: experimental
+description: |
+    Detects a high rate of "Failed password" entries in auth.log, consistent
+    with SSH password-guessing or brute-force activity. This is the Linux
+    half of a cross-platform brute-force detection — see
+    t1110_001_brute_force_windows.yml for the Windows side and the
+    correlation note there for combining the two.
+references:
+    - https://attack.mitre.org/techniques/T1110/001/
+author: Home SOC Lab
+date: 2026/07/11
+tags:
+    - attack.credential_access
+    - attack.t1110.001
+logsource:
+    product: linux
+    service: auth
+detection:
+    selection:
+        - 'Failed password'
+    timeframe: 5m
+    condition: selection | count() by host > 5
+fields:
+    - host
+    - user
+falsepositives:
+    - A legitimate user repeatedly mistyping their password
+    - Automated jobs using stale SSH keys/credentials
+level: medium
+
+# --- Notes (comments, not part of the Sigma rule schema) ---
+# Splunk equivalent (spl-queries.md, T1110.001) — same query as the Windows
+# rule file, since it's a single correlated SPL search covering both hosts:
+#   index=* (host="<windows-hostname>" EventCode=4625) OR (host="<linux-hostname>" "Failed password")
+#   | rex field=_raw "Failed password for (?<invalid_linux_user>invalid user )?(?<lin_user>\S+)"
+#   | eval OS = if(host="<windows-hostname>", "Windows", "Linux")
+#   | eval User = coalesce(win_user, lin_user)
+#   | timechart count by OS
+#
+# - This rule uses a raw keyword match (`selection: - 'Failed password'`)
+#   rather than a field match because auth.log is unstructured text; a
+#   field-based Sigma rule here depends on how your log shipper (rsyslog,
+#   Filebeat, syslog-ng, etc.) parses PAM messages into fields. Adjust
+#   `logsource.service` and field names to match your actual pipeline.
+# - See t1110_001_brute_force_windows.yml for the Sigma correlation-rule
+#   example that ties this and the Windows rule together into one
+#   cross-platform detection.
