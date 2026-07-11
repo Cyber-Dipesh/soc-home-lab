@@ -94,7 +94,9 @@ panel).
 
 ## Screenshots
 
-
+<img width="1918" height="938" alt="Dashboards 3" src="https://github.com/user-attachments/assets/7fcea943-b404-4c61-a8cb-65e0642bf706" />
+<img width="1918" height="938" alt="Dashboards (2)" src="https://github.com/user-attachments/assets/045e3e77-2c4c-47ca-bdbb-cf34d3bba7ac" />
+<img width="1918" height="938" alt="Dashboards" src="https://github.com/user-attachments/assets/feac3ed7-792f-47e9-b6d2-48ed883645fc" />
 
 ---
 
